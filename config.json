@@ -1,9 +1,10 @@
 {
-  "Port": "8801",
-  "DbType": "mysql",
-  "DbName": "gstep",
-  "DbHost": "localhost",
-  "DbPort": "3306",
-  "DbUser": "root",
-  "DbPassword": "password"
+  "Port": "9900",
+  "Db":{
+    "Database": "gstep",
+    "Host": "localhost",
+    "Port": "3306",
+    "User": "root",
+    "Password": "password"
+  }
 }

@@ -2,17 +2,20 @@ package config
 
 import (
 	"encoding/json"
+	util_log "github.com/marqstree/gstep/util/log"
 	"log"
 	"os"
 )
 
 type Configuration struct {
-	Port       string
-	DbName     string
-	DbHost     string
-	DbPort     string
-	DbUser     string
-	DbPassword string
+	Port string
+	Db   struct {
+		Database string
+		Host     string
+		Port     string
+		User     string
+		Password string
+	}
 }
 
 // 全局配置
@@ -22,7 +25,7 @@ func Setup() {
 	//将配置文件:config.json中的配置读取到Config
 	file, err := os.Open("config.json")
 	if err != nil {
-		log.Printf("cannot open file config.json: %v", err)
+		log.Printf("cannot open file config.log: %v", err)
 		panic(err)
 	}
 
@@ -30,10 +33,10 @@ func Setup() {
 	Config = &Configuration{}
 	err = decoder.Decode(Config)
 	if err != nil {
-		log.Printf("decode config.json failed: %v", err)
+		log.Printf("decode config.log failed: %v", err)
 		panic(err)
 	}
 
-	jsonStr, _ := json.Marshal(Config)
-	log.Printf("global config: %s", jsonStr)
+	log.Printf("global config:")
+	util_log.PrintPretty(Config)
 }
