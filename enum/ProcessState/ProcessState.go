@@ -1,4 +1,4 @@
-package enum
+package ProcessState
 
 import "github.com/marqstree/gstep/util/enum"
 

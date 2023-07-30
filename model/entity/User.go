@@ -7,3 +7,11 @@ type User struct {
 	isLeader     bool
 	departmentId int
 }
+
+func (e User) TableName() string {
+	return "user"
+}
+
+func (e User) GetId() any {
+	return e.Id
+}

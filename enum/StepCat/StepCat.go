@@ -1,4 +1,4 @@
-package enum
+package StepCat
 
 import "github.com/marqstree/gstep/util/enum"
 

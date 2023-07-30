@@ -11,3 +11,11 @@ type Template struct {
 	Version  int
 	RootStep Step `gorm:"serializer:json"`
 }
+
+func (e Template) TableName() string {
+	return "template"
+}
+
+func (e Template) GetId() any {
+	return e.Id
+}

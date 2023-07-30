@@ -1,4 +1,4 @@
-package enum
+package AuditMethod
 
 import (
 	"github.com/marqstree/gstep/util/enum"

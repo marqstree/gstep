@@ -10,3 +10,11 @@ type Process struct {
 	StartUserId string
 	State       string
 }
+
+func (e Process) TableName() string {
+	return "process"
+}
+
+func (e Process) GetId() any {
+	return e.Id
+}

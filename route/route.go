@@ -3,10 +3,12 @@ package route
 import (
 	"fmt"
 	"github.com/marqstree/gstep/config"
+	"github.com/marqstree/gstep/route/handler/ProcessHandler"
 	"github.com/marqstree/gstep/route/handler/TemplateHandler"
 	"github.com/marqstree/gstep/util/net/AjaxJson"
 	"log"
 	"net/http"
+	"runtime/debug"
 	"time"
 )
 
@@ -33,6 +35,7 @@ func errorHandle(h http.HandlerFunc) http.HandlerFunc {
 			err := recover()
 
 			if nil != err {
+				debug.PrintStack()
 				AjaxJson.Fail(fmt.Sprintf("%s", err)).Response(w)
 			}
 		}()
@@ -71,5 +74,5 @@ func Setup() {
 // define route
 func setupRoutes() {
 	Mux.HandleFunc("/template/save", middleware(TemplateHandler.Save))
-	Mux.HandleFunc("/template/start", middleware(TemplateHandler.Start))
+	Mux.HandleFunc("/process/start", middleware(ProcessHandler.Start))
 }
