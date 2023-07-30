@@ -3,7 +3,8 @@ package route
 import (
 	"fmt"
 	"github.com/marqstree/gstep/config"
-	"github.com/marqstree/gstep/route/handler"
+	"github.com/marqstree/gstep/route/handler/TemplateHandler"
+	"github.com/marqstree/gstep/util/net/AjaxJson"
 	"log"
 	"net/http"
 	"time"
@@ -12,7 +13,32 @@ import (
 var Mux = http.NewServeMux()
 
 func middleware(h http.HandlerFunc) http.HandlerFunc {
-	return crossOrigin(h)
+	handler := crossOrigin(h)
+	handler = jsonResponseHead(h)
+	handler = errorHandle(handler)
+	return handler
+}
+
+func jsonResponseHead(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+		h(w, r)
+	}
+}
+
+func errorHandle(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			err := recover()
+
+			if nil != err {
+				AjaxJson.Fail(fmt.Sprintf("%s", err)).Response(w)
+			}
+		}()
+
+		h(w, r)
+	}
 }
 
 func crossOrigin(h http.HandlerFunc) http.HandlerFunc {
@@ -44,5 +70,6 @@ func Setup() {
 
 // define route
 func setupRoutes() {
-	Mux.HandleFunc("/template/save", middleware(handler.SaveWorkflowTemplate))
+	Mux.HandleFunc("/template/save", middleware(TemplateHandler.Save))
+	Mux.HandleFunc("/template/start", middleware(TemplateHandler.Start))
 }

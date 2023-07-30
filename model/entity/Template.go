@@ -1,11 +1,13 @@
-package model_entity
+package entity
 
-import "github.com/marqstree/gstep/util/db"
+import (
+	"github.com/marqstree/gstep/util/db/entity"
+)
 
 type Template struct {
-	util_db.BaseModel
-	GroupId int64
-	Title   string
-	Version int64
-	Content string
+	entity.BaseEntity
+	GroupId  int
+	Title    string
+	Version  int
+	RootStep Step `gorm:"serializer:json"`
 }
