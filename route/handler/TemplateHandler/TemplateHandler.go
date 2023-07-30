@@ -12,11 +12,11 @@ import (
 )
 
 func Save(writer http.ResponseWriter, request *http.Request) {
-	dto := entity.Template{}
-	RequestParsUtil.Body2dto(request, &dto)
+	entity := entity.Template{}
+	RequestParsUtil.Body2dto(request, &entity)
 
 	tx := DbUtil.GetTx()
-	id := TemplateService.SaveOrUpdate(&dto, tx)
+	id := TemplateService.SaveOrUpdate(&entity, tx)
 
 	tx.Commit()
 	AjaxJson.SuccessByData(id).Response(writer)

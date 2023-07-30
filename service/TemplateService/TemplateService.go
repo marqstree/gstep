@@ -21,7 +21,7 @@ func SaveOrUpdate(dto *entity.Template, tx *gorm.DB) int {
 	} else {
 		entity.Version = 1
 	}
-	DaoUtil.SaveOrUpdate(&entity.BaseEntity, tx)
+	DaoUtil.SaveOrUpdate(entity, tx)
 
 	return entity.Id
 }

@@ -5,20 +5,26 @@ import (
 	"github.com/marqstree/gstep/util/db/DbUtil"
 	"github.com/marqstree/gstep/util/db/entity"
 	"gorm.io/gorm"
+	"reflect"
 )
 
-func SaveOrUpdate(entity *entity.BaseEntity, tx *gorm.DB) {
+func SaveOrUpdate(e any, tx *gorm.DB) {
 	d := DbUtil.Db
 	if nil != tx {
 		d = tx
 	}
-	if entity.Id < 1 {
-		result := d.Create(entity)
+
+	//反射获取id
+	value := reflect.ValueOf(e)
+	id := reflect.Indirect(value).FieldByName("Id").Int()
+
+	if id < 1 {
+		result := d.Create(e)
 		if nil != result.Error {
 			panic(result.Error)
 		}
 	} else {
-		d.Save(entity)
+		d.Save(e)
 	}
 }
 
