@@ -2,64 +2,66 @@ package dao
 
 import (
 	"github.com/marqstree/gstep/util/ServerError"
-	"github.com/marqstree/gstep/util/db/DbUtil"
 	"github.com/marqstree/gstep/util/db/entity"
 	"gorm.io/gorm"
 	"reflect"
 )
 
-func SaveOrUpdate(e any, tx *gorm.DB) {
-	d := DbUtil.Db
-	if nil != tx {
-		d = tx
-	}
-
+func SaveOrUpdate(pEntity any, tx *gorm.DB) {
 	//反射获取id
-	value := reflect.ValueOf(e)
+	value := reflect.ValueOf(pEntity)
 	id := reflect.Indirect(value).FieldByName("Id").Interface()
 
 	switch id.(type) {
 	case int:
 		if id.(int) < 1 {
-			result := d.Create(e)
+			result := tx.Create(pEntity)
 			if nil != result.Error {
 				panic(result.Error)
 			}
 		} else {
-			d.Save(e)
+			tx.Save(pEntity)
 		}
 	case string:
 		if len(id.(string)) < 1 {
-			result := d.Create(e)
+			result := tx.Create(pEntity)
 			if nil != result.Error {
 				panic(result.Error)
 			}
 		} else {
-			d.Save(e)
+			tx.Save(pEntity)
 		}
 	}
-
 }
 
-func CheckById[T entity.CommonEntity, I int | string](id I) T {
+func CheckById[T entity.CommonEntity, I int | string](id I, tx *gorm.DB) *T {
 	var detail T
 
-	err := DbUtil.Db.Table(detail.TableName()).Where("id=?", id).First(&detail).Error
+	err := tx.Table(detail.TableName()).Where("id=?", id).First(&detail).Error
 	if nil != err {
 		panic(err)
 	}
 
 	newId := detail.GetId()
-	switch newId.(type) {
+	err = CheckId(newId)
+	if nil != err {
+		panic(err)
+	}
+
+	return &detail
+}
+
+func CheckId(id any) error {
+	switch id.(type) {
 	case int:
-		if newId == 0 {
-			panic(ServerError.New("无效的表id"))
+		if id == 0 {
+			return ServerError.New("无效的表id")
 		}
 	case string:
-		if len(newId.(string)) == 0 {
-			panic(ServerError.New("无效的表id"))
+		if len(id.(string)) == 0 {
+			return ServerError.New("无效的表id")
 		}
 	}
 
-	return detail
+	return nil
 }

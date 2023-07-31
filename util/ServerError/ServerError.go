@@ -1,6 +1,7 @@
 package ServerError
 
 import (
+	"fmt"
 	"github.com/marqstree/gstep/util/CONSTANT"
 )
 
@@ -13,6 +14,13 @@ func New(msg string) *ServerError {
 	return &ServerError{
 		Code: CONSTANT.FAIL_CODE,
 		Msg:  msg,
+	}
+}
+
+func NewByError(formatMsg string, err error) *ServerError {
+	return &ServerError{
+		Code: CONSTANT.FAIL_CODE,
+		Msg:  fmt.Sprintf(formatMsg, err.Error()),
 	}
 }
 

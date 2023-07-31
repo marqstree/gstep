@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/marqstree/gstep/config"
 	"github.com/marqstree/gstep/route/handler/ProcessHandler"
+	"github.com/marqstree/gstep/route/handler/TaskHandler"
 	"github.com/marqstree/gstep/route/handler/TemplateHandler"
 	"github.com/marqstree/gstep/util/net/AjaxJson"
 	"log"
@@ -75,4 +76,5 @@ func Setup() {
 func setupRoutes() {
 	Mux.HandleFunc("/template/save", middleware(TemplateHandler.Save))
 	Mux.HandleFunc("/process/start", middleware(ProcessHandler.Start))
+	Mux.HandleFunc("/task/pass", middleware(TaskHandler.Pass))
 }

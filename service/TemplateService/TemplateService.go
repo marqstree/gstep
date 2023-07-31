@@ -12,7 +12,7 @@ func SaveOrUpdate(dto *entity.Template, tx *gorm.DB) int {
 	entity := &entity.Template{}
 	copier.Copy(entity, dto)
 
-	old := TemplateDao.GetLatestVersionByGroupId(dto.GroupId)
+	old := TemplateDao.GetLatestVersionByGroupId(dto.GroupId, tx)
 	if nil != old {
 		entity.Version = old.Version + 1
 	} else {

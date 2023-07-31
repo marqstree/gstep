@@ -15,9 +15,8 @@ func Start(writer http.ResponseWriter, request *http.Request) {
 	dto := dto.ProcessStartDto{}
 	RequestParsUtil.Body2dto(request, &dto)
 
-	dao.CheckById[entity.User](dto.StartUserId)
-
 	tx := DbUtil.GetTx()
+	dao.CheckById[entity.User](dto.StartUserId, tx)
 	id := ProcessService.Start(&dto, tx)
 	tx.Commit()
 

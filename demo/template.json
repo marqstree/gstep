@@ -1,28 +1,25 @@
 {
-  "id": 1,
   "groupId": 1,
-  "title": "请假",
+  "title": "请假3",
   "rootStep": {
-    "dd": 1,
+    "id": 1,
     "title": "申请",
     "category": "start",
     "form": {
       "name": "张三",
       "day": 10
     },
-    "agreeSteps": [
+    "nextSteps": [
       {
         "title": "3天以内",
         "category": "condition",
         "expression": "day<=3",
-        "agreeSteps": [
+        "nextSteps": [
           {
             "id": 2,
             "title": "主任-审核",
             "category": "audit",
-            "refuseStepIds": [
-              9999
-            ]
+            "auditMethod": "or"
           }
         ]
       },
@@ -30,22 +27,18 @@
         "title": "10天以内",
         "category": "condition",
         "expression": "day<=10",
-        "agreeSteps": [
+        "nextSteps": [
           {
             "id": 3,
             "title": "主任-审核",
             "category": "audit",
-            "refuseStepIds": [
-              9999
-            ],
-            "agreeSteps": [
+            "auditMethod": "or",
+            "nextSteps": [
               {
                 "id": 4,
                 "title": "人事-审核",
                 "category": "audit",
-                "refuseStepIds": [
-                  9999
-                ]
+                "auditMethod": "or"
               }
             ]
           }
@@ -55,31 +48,25 @@
         "title": "10天以上",
         "category": "condition",
         "expression": "day>10",
-        "agreeSteps": [
+        "nextSteps": [
           {
             "id": 5,
             "title": "主任-审核",
             "category": "audit",
-            "refuseStepIds": [
-              9999
-            ],
-            "agreeSteps": [
+            "auditMethod": "or",
+            "nextSteps": [
               {
                 "id": 6,
                 "title": "人事-审核",
                 "category": "audit",
-                "refuseStepIds": [
-                  9999
-                ],
-                "agreeSteps": [
+                "auditMethod": "or",
+                "nextSteps": [
                   {
                     "id": 7,
                     "title": "总经理-审核",
                     "category": "audit",
-                    "refuseStepIds": [
-                      5,
-                      9999
-                    ]
+                    "auditMethod": "or",
+                    "prevStepIds": [5]
                   }
                 ]
               }
