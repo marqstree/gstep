@@ -5,8 +5,9 @@ type Step struct {
 	Title       string
 	Category    string
 	Form        map[string]any
-	AuditMethod string
+	Candidates  []string
 	Expression  string
+	AuditMethod string
 	NextSteps   []Step
 	PrevStepIds []int
 }

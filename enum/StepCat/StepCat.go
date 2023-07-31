@@ -24,7 +24,4 @@ func init() {
 
 	START.Code = "start"
 	START.Title = "开始"
-
-	END.Code = "end"
-	END.Title = "结束"
 }

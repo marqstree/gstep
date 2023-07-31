@@ -8,6 +8,7 @@ type Process struct {
 	entity.BaseEntity
 	TemplateId  int
 	StartUserId string
+	RootStep    Step `gorm:"serializer:json"`
 	State       string
 }
 

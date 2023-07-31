@@ -6,8 +6,7 @@
     "title": "申请",
     "category": "start",
     "form": {
-      "name": "张三",
-      "day": 10
+      "day": 0
     },
     "nextSteps": [
       {
@@ -19,6 +18,9 @@
             "id": 2,
             "title": "主任-审核",
             "category": "audit",
+            "candidates": [
+              "013645"
+            ],
             "auditMethod": "or"
           }
         ]
@@ -32,12 +34,18 @@
             "id": 3,
             "title": "主任-审核",
             "category": "audit",
+            "candidates": [
+              "013645"
+            ],
             "auditMethod": "or",
             "nextSteps": [
               {
                 "id": 4,
                 "title": "人事-审核",
                 "category": "audit",
+                "candidates": [
+                  "013701"
+                ],
                 "auditMethod": "or"
               }
             ]
@@ -53,20 +61,31 @@
             "id": 5,
             "title": "主任-审核",
             "category": "audit",
+            "candidates": [
+              "013645"
+            ],
             "auditMethod": "or",
             "nextSteps": [
               {
                 "id": 6,
                 "title": "人事-审核",
                 "category": "audit",
+                "candidates": [
+                  "013701"
+                ],
                 "auditMethod": "or",
                 "nextSteps": [
                   {
                     "id": 7,
                     "title": "总经理-审核",
                     "category": "audit",
+                    "candidates": [
+                      "014535"
+                    ],
                     "auditMethod": "or",
-                    "prevStepIds": [5]
+                    "prevStepIds": [
+                      5
+                    ]
                   }
                 ]
               }
