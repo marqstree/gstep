@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"github.com/marqstree/gstep/util/CONSTANT"
 	"github.com/marqstree/gstep/util/ServerError"
+	"github.com/marqstree/gstep/util/net/page"
 	"net/http"
 )
 
 type AjaxJson struct {
-	Code int    `JsonUtil:"code"`
-	Msg  string `JsonUtil:"msg"`
-	Data any    `JsonUtil:"data"`
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Data any    `json:"data"`
 }
 
 func New(code int, msg string, data any) *AjaxJson {
@@ -27,6 +28,18 @@ func SuccessByData(data any) *AjaxJson {
 		Code: CONSTANT.SUCESS_CODE,
 		Msg:  "成功",
 		Data: data,
+	}
+}
+
+func SuccessByPagination(datas any, total int) *AjaxJson {
+	pagination := pagination.Pagination{}
+	pagination.List = datas
+	pagination.Total = total
+
+	return &AjaxJson{
+		Code: CONSTANT.SUCESS_CODE,
+		Msg:  "成功",
+		Data: pagination,
 	}
 }
 

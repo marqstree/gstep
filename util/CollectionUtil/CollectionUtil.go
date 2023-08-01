@@ -2,6 +2,7 @@ package CollectionUtil
 
 import (
 	"container/list"
+	"encoding/json"
 	"sort"
 )
 
@@ -27,4 +28,17 @@ func ExistsDuplicateInStringsArr(arr []string) bool {
 		}
 	}
 	return false
+}
+
+func Obj2map(obj any) (map[string]any, error) {
+	jsonStr, err := json.Marshal(obj)
+	if err != nil {
+		return nil, err
+	}
+
+	var result map[string]any
+	if err := json.Unmarshal(jsonStr, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
 }

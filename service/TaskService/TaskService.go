@@ -1,6 +1,7 @@
 package TaskService
 
 import (
+	"github.com/marqstree/gstep/config"
 	"github.com/marqstree/gstep/dao/TaskAssigneeDao"
 	"github.com/marqstree/gstep/dao/TaskCandidateDao"
 	"github.com/marqstree/gstep/dao/TaskDao"
@@ -11,10 +12,14 @@ import (
 	"github.com/marqstree/gstep/model/dto"
 	"github.com/marqstree/gstep/model/entity"
 	"github.com/marqstree/gstep/service/StepService"
+	"github.com/marqstree/gstep/util/CollectionUtil"
 	"github.com/marqstree/gstep/util/ExpressionUtil"
 	"github.com/marqstree/gstep/util/ServerError"
 	"github.com/marqstree/gstep/util/db/dao"
+	"github.com/marqstree/gstep/util/net/AjaxJson"
+	"github.com/marqstree/gstep/util/net/RequestUtil"
 	"gorm.io/gorm"
+	"log"
 )
 
 func Pass(pDto *dto.TaskPassDto, tx *gorm.DB) {
@@ -42,7 +47,7 @@ func Pass(pDto *dto.TaskPassDto, tx *gorm.DB) {
 		if nil != pNextStep {
 			NewTaskByStep(pNextStep, pProcess, tx)
 		} else {
-			FinishProcess(pProcess, tx)
+			FinishPassProcess(pProcess, tx)
 		}
 	}
 }
@@ -66,11 +71,38 @@ func Refuse(pDto *dto.TaskRefuseDto, tx *gorm.DB) {
 
 	//撤销上一步
 	pPrevSteps := StepService.FindPrevEndAuditSteps(&pProcess.RootStep, pTask.StepId, pDto.PrevStepId)
-	for _, v := range pPrevSteps {
+	for i, v := range pPrevSteps {
 		pPrevTask := TaskDao.QueryTaskByStepId(v.Id, pProcess.Id, tx)
-		pPrevTask.State = TaskState.WITHDRAW.Code
+
+		if i == len(pPrevSteps)-1 {
+			pPrevTask.State = TaskState.STARTED.Code
+		} else {
+			pPrevTask.State = TaskState.WITHDRAW.Code
+		}
 		dao.SaveOrUpdate(pPrevTask, tx)
 	}
+}
+
+func Cease(pDto *dto.TaskCeaseDto, tx *gorm.DB) {
+	pTask := dao.CheckById[entity.Task](pDto.TaskId, tx)
+	pProcess := dao.CheckById[entity.Process](pTask.ProcessId, tx)
+
+	//保存任务提交人
+	assignee := entity.TaskAssignee{}
+	assignee.TaskId = pTask.Id
+	assignee.UserId = pDto.UserId
+	assignee.State = TaskState.REFUSE.Code
+	dao.SaveOrUpdate(&assignee, tx)
+
+	//保存任务表单
+	pTask.Form = pDto.Form
+	//更新任务状态
+	pTask.State = TaskState.REFUSE.Code
+	dao.SaveOrUpdate(pTask, tx)
+
+	//撤销上一步
+	pProcess.State = ProcessState.FINISH_REFUSE.Code
+	dao.SaveOrUpdate(pProcess, tx)
 }
 
 func CanPass(pTask *entity.Task, pProcess *entity.Process, tx *gorm.DB) bool {
@@ -182,7 +214,31 @@ func NewStartTask(pProcess *entity.Process, startUserId string, tx *gorm.DB) *en
 	return &task
 }
 
-func FinishProcess(pProcess *entity.Process, tx *gorm.DB) {
-	pProcess.State = ProcessState.FINISHED.Code
+// 审核通过流程
+func FinishPassProcess(pProcess *entity.Process, tx *gorm.DB) {
+	pProcess.State = ProcessState.FINISH_PASS.Code
 	dao.SaveOrUpdate(pProcess, tx)
+}
+
+// 调用流程任务状态变更通知回调接口
+func NotifyTaskStateChange(pTask *entity.Task) {
+	url := config.Config.Notify.TaskStateChange
+	if len(url) == 0 {
+		return
+	}
+
+	m, err := CollectionUtil.Obj2map(*pTask)
+	if nil != err {
+		return
+	}
+	result := AjaxJson.AjaxJson{}
+	RequestUtil.PostJson(url, m, &result)
+	log.Println("接收通知服务端返回: %v", result)
+}
+
+// 检查流程任务是否重复审核
+func CheckTaskCanChange(pTask *entity.Task) {
+	if pTask.State == TaskState.PASS.Code {
+		panic(ServerError.New("重复审核任务"))
+	}
 }

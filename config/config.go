@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	util_log "github.com/marqstree/gstep/util/log"
+	"github.com/marqstree/gstep/util/LogUtil"
 	"log"
 	"os"
 )
@@ -16,6 +16,9 @@ type Configuration struct {
 		User     string
 		Password string
 	}
+	Notify struct {
+		TaskStateChange string
+	}
 }
 
 // 全局配置
@@ -25,7 +28,7 @@ func Setup() {
 	//将配置文件:config.json中的配置读取到Config
 	file, err := os.Open("config.json")
 	if err != nil {
-		log.Printf("cannot open file config.log: %v", err)
+		log.Printf("cannot open file config.LogUtil: %v", err)
 		panic(err)
 	}
 
@@ -33,10 +36,10 @@ func Setup() {
 	Config = &Configuration{}
 	err = decoder.Decode(Config)
 	if err != nil {
-		log.Printf("decode config.log failed: %v", err)
+		log.Printf("decode config.LogUtil failed: %v", err)
 		panic(err)
 	}
 
 	log.Printf("global config:")
-	util_log.PrintPretty(Config)
+	LogUtil.PrintPretty(Config)
 }

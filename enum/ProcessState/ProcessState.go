@@ -7,12 +7,16 @@ type ProcessState struct {
 }
 
 var STARTED = ProcessState{}
-var FINISHED = ProcessState{}
+var FINISH_PASS = ProcessState{}
+var FINISH_REFUSE = ProcessState{}
 
 func init() {
 	STARTED.Code = "started"
 	STARTED.Title = "开始"
 
-	FINISHED.Code = "finished"
-	FINISHED.Title = "结束"
+	FINISH_PASS.Code = "finish_pass"
+	FINISH_PASS.Title = "已通过"
+
+	FINISH_REFUSE.Code = "finish_refuse"
+	FINISH_REFUSE.Title = "已驳回"
 }
