@@ -77,4 +77,5 @@ func setupRoutes() {
 	Mux.HandleFunc("/template/save", middleware(TemplateHandler.Save))
 	Mux.HandleFunc("/process/start", middleware(ProcessHandler.Start))
 	Mux.HandleFunc("/task/pass", middleware(TaskHandler.Pass))
+	Mux.HandleFunc("/task/refuse", middleware(TaskHandler.Refuse))
 }

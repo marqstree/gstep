@@ -1,6 +1,7 @@
 package StepService
 
 import (
+	"github.com/marqstree/gstep/enum/StepCat"
 	"github.com/marqstree/gstep/model/entity"
 	"github.com/marqstree/gstep/util/ServerError"
 	"github.com/marqstree/gstep/util/db/dao"
@@ -8,7 +9,7 @@ import (
 )
 
 func GetStepByProcess(pPrcess *entity.Process, stepId int) *entity.Step {
-	pStep := findStep(&pPrcess.RootStep, stepId)
+	pStep := FindStep(&pPrcess.RootStep, stepId)
 
 	if nil == pStep {
 		panic(ServerError.New("无效的步骤id"))
@@ -20,11 +21,11 @@ func GetStepByProcess(pPrcess *entity.Process, stepId int) *entity.Step {
 func GetStepByTemplateId(templateId int, stepId int, tx *gorm.DB) *entity.Step {
 	template := dao.CheckById[entity.Template](templateId, tx)
 
-	pStep := findStep(&template.RootStep, stepId)
+	pStep := FindStep(&template.RootStep, stepId)
 	return pStep
 }
 
-func findStep(pRootStep *entity.Step, stepId int) *entity.Step {
+func FindStep(pRootStep *entity.Step, stepId int) *entity.Step {
 	if nil == pRootStep {
 		return nil
 	}
@@ -36,17 +37,93 @@ func findStep(pRootStep *entity.Step, stepId int) *entity.Step {
 	if len(pRootStep.NextSteps) == 0 {
 		return nil
 	}
-	
+
 	for _, v := range pRootStep.NextSteps {
 		if v.Id == stepId {
 			return &v
 		}
 
-		pFindOne := findStep(&v, stepId)
+		pFindOne := FindStep(&v, stepId)
 		if nil != pFindOne {
 			return pFindOne
 		}
 	}
 
 	return nil
+}
+
+func FindPrevStep(pParentStep *entity.Step, beginStepId int) *entity.Step {
+	if nil == pParentStep {
+		return nil
+	}
+
+	if len(pParentStep.NextSteps) == 0 {
+		return nil
+	}
+
+	for _, v := range pParentStep.NextSteps {
+		if v.Id == beginStepId {
+			return pParentStep
+		}
+
+		pFindOne := FindPrevStep(&v, beginStepId)
+		if nil != pFindOne {
+			return pFindOne
+		}
+	}
+
+	return nil
+}
+
+func FindPrevAuditStep(pRootStep *entity.Step, beginStepId int) *entity.Step {
+	fromStepId := beginStepId
+	for {
+		pPrevStep := FindPrevStep(pRootStep, fromStepId)
+		if nil == pPrevStep {
+			return nil
+		}
+		if StepCat.IsContainAudit(pPrevStep.Category) {
+			return pPrevStep
+		}
+
+		fromStepId = pPrevStep.Id
+	}
+}
+
+func FindPrevAuditSteps(pRootStep *entity.Step, beginStepId int) []*entity.Step {
+	auditpSteps := []*entity.Step{}
+	fromStepId := beginStepId
+	for {
+		pPrevStep := FindPrevAuditStep(pRootStep, fromStepId)
+		if nil == pPrevStep {
+			return []*entity.Step{}
+		}
+		if StepCat.IsContainAudit(pPrevStep.Category) {
+			auditpSteps = append(auditpSteps, pPrevStep)
+		}
+
+		fromStepId = pPrevStep.Id
+	}
+}
+
+func FindPrevEndAuditSteps(pRootStep *entity.Step, beginStepId int, endStepId int) []*entity.Step {
+	auditpSteps := []*entity.Step{}
+	fromStepId := beginStepId
+	for {
+		pPrevStep := FindPrevAuditStep(pRootStep, fromStepId)
+
+		if nil == pPrevStep {
+			return []*entity.Step{}
+		}
+
+		if StepCat.IsContainAudit(pPrevStep.Category) {
+			auditpSteps = append(auditpSteps, pPrevStep)
+		}
+
+		if endStepId == pPrevStep.Id {
+			return auditpSteps
+		}
+
+		fromStepId = pPrevStep.Id
+	}
 }

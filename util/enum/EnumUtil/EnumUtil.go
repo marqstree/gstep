@@ -1,0 +1,5 @@
+package EnumUtil
+
+func IsContain() {
+
+}
