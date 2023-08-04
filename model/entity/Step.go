@@ -4,6 +4,7 @@ type Step struct {
 	Id          int
 	Title       string
 	Category    string
+	Level       int
 	Form        map[string]any
 	Candidates  []string
 	Expression  string

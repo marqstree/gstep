@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func Body2dto(r *http.Request, dto interface{}) {
@@ -32,4 +33,14 @@ func PrintRequest(r *http.Request) {
 	body := make(map[string]interface{})
 	json.Unmarshal(s, &body)
 	fmt.Println("body:", body)
+}
+
+func GetAuthorizationToken(r *http.Request) string {
+	value := r.Header.Get("Authorization")
+	list := strings.Fields(value)
+	if len(list) != 2 {
+		return ""
+	}
+
+	return list[1]
 }

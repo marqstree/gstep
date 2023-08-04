@@ -9,7 +9,10 @@ import (
 
 type Configuration struct {
 	Port string
-	Db   struct {
+	Auth struct {
+		Secret string
+	}
+	Db struct {
 		Database string
 		Host     string
 		Port     string

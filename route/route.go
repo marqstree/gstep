@@ -7,7 +7,9 @@ import (
 	"github.com/marqstree/gstep/route/handler/ProcessHandler"
 	"github.com/marqstree/gstep/route/handler/TaskHandler"
 	"github.com/marqstree/gstep/route/handler/TemplateHandler"
+	"github.com/marqstree/gstep/util/ServerError"
 	"github.com/marqstree/gstep/util/net/AjaxJson"
+	"github.com/marqstree/gstep/util/net/RequestParsUtil"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -17,15 +19,29 @@ import (
 var Mux = http.NewServeMux()
 
 func middleware(h http.HandlerFunc) http.HandlerFunc {
-	handler := crossOrigin(h)
-	handler = jsonResponseHead(h)
+	handler := authHandle(h)
 	handler = errorHandle(handler)
+	handler = jsonResponseHead(handler)
+	handler = crossOrigin(handler)
 	return handler
 }
 
 func jsonResponseHead(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+		h(w, r)
+	}
+}
+
+func authHandle(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		secret := config.Config.Auth.Secret
+		token := RequestParsUtil.GetAuthorizationToken(r)
+
+		if secret != token {
+			panic(ServerError.New("无访问权限"))
+		}
 
 		h(w, r)
 	}
@@ -48,9 +64,25 @@ func errorHandle(h http.HandlerFunc) http.HandlerFunc {
 
 func crossOrigin(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+
 		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,x-requested-with,Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		//注意:Access-Control-Allow-Origin不能设置成*
+		if len(r.Header.Get("Origin")) > 0 {
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		} else if len(r.Header.Get("Referer")) > 0 {
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Referer"))
+		}
+
+		//预请求只返回响应头
+		if "OPTIONS" == r.Method {
+			//注意:w.WriteHeader(http.StatusAccepted)之后的w.Header().Set代码无效
+			w.WriteHeader(http.StatusAccepted)
+			return
+		}
+
 		h(w, r)
 	}
 }
@@ -59,11 +91,11 @@ func Setup() {
 	setupRoutes()
 
 	server := &http.Server{
-		Addr:           fmt.Sprintf(":%s", config.Config.Port),
-		Handler:        Mux,
-		ReadTimeout:    time.Duration(30 * int(time.Second)),
-		WriteTimeout:   time.Duration(30 * int(time.Second)),
-		MaxHeaderBytes: 1 << 20,
+		Addr:         fmt.Sprintf(":%s", config.Config.Port),
+		Handler:      Mux,
+		ReadTimeout:  time.Duration(30 * int(time.Second)),
+		WriteTimeout: time.Duration(30 * int(time.Second)),
+		//MaxHeaderBytes: 1 << 20,
 	}
 	log.Printf("web server start up at port%s", server.Addr)
 	err := server.ListenAndServe()
@@ -77,6 +109,8 @@ func Setup() {
 func setupRoutes() {
 	//流程模板
 	Mux.HandleFunc("/template/save", middleware(TemplateHandler.Save))
+	Mux.HandleFunc("/template/query", middleware(TemplateHandler.Query))
+	Mux.HandleFunc("/template/detail", middleware(TemplateHandler.Detail))
 	//流程实例
 	Mux.HandleFunc("/process/start", middleware(ProcessHandler.Start))
 	//任务
