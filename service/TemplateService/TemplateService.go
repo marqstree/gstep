@@ -28,14 +28,14 @@ func Query(dto *dto.TemplateQueryDto, tx *gorm.DB) []entity.Template {
 }
 
 func QueryDetail(dto *dto.TemplateQueryDetailDto, tx *gorm.DB) *entity.Template {
-	template := entity.Template{}
+	pTemplate := &entity.Template{}
 	if dto.TemplateId > 0 {
-		template = *dao.CheckById[entity.Template](dto.TemplateId, tx)
+		pTemplate = dao.CheckById[entity.Template](dto.TemplateId, tx)
 	}
 
 	if dto.GroupId > 0 {
-		template = *TemplateDao.GetLatestVersionByGroupId(dto.GroupId, tx)
+		pTemplate = TemplateDao.GetLatestVersionByGroupId(dto.GroupId, tx)
 	}
 
-	return &template
+	return pTemplate
 }

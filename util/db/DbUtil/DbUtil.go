@@ -56,7 +56,7 @@ func Setup() {
 	sqlDB.SetMaxOpenConns(100)
 
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(time.Duration(120) * time.Second)
 
 	Db = db
 }

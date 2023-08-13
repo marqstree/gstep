@@ -9,6 +9,10 @@ import (
 )
 
 func Body2dto(r *http.Request, dto interface{}) {
+	if (http.NoBody == r.Body) {
+		return
+	}
+
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if nil != err {
 		panic(err)

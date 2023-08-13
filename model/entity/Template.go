@@ -6,10 +6,10 @@ import (
 
 type Template struct {
 	entity.BaseEntity
-	GroupId  int
-	Title    string
-	Version  int
-	RootStep Step `gorm:"serializer:json"`
+	GroupId  int    `json:"groupId"`
+	Title    string `json:"title"`
+	Version  int    `json:"version"`
+	RootStep Step   `json:"rootStep" gorm:"serializer:json"`
 }
 
 func (e Template) TableName() string {

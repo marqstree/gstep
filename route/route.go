@@ -3,6 +3,7 @@ package route
 import (
 	"fmt"
 	"github.com/marqstree/gstep/config"
+	"github.com/marqstree/gstep/route/handler/DepartmentHandler"
 	"github.com/marqstree/gstep/route/handler/NotifyHandler"
 	"github.com/marqstree/gstep/route/handler/ProcessHandler"
 	"github.com/marqstree/gstep/route/handler/TaskHandler"
@@ -64,7 +65,6 @@ func errorHandle(h http.HandlerFunc) http.HandlerFunc {
 
 func crossOrigin(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		w.Header().Set("Access-Control-Allow-Methods", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,x-requested-with,Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -124,4 +124,8 @@ func setupRoutes() {
 	//+++ 测试接口 ++++++++++++++++++
 	//接收通知
 	Mux.HandleFunc("/notify/task_state_change", middleware(NotifyHandler.TaskStateChange))
+
+	//部门查询
+	Mux.HandleFunc("/department/get_child_department", middleware(DepartmentHandler.GetChildDepartments))
+	Mux.HandleFunc("/department/get_users", middleware(DepartmentHandler.GetUsers))
 }

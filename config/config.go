@@ -22,6 +22,9 @@ type Configuration struct {
 	Notify struct {
 		TaskStateChange string
 	}
+	Department struct {
+		RootDepartmentId string
+	}
 }
 
 // 全局配置

@@ -12,5 +12,8 @@
   },
   "notify": {
     "taskStateChange": "http://localhost:9900/notify/task_state_change"
+  },
+  "department": {
+    "rootDepartmentId": "1"
   }
 }

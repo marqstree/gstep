@@ -1,9 +1,9 @@
 package entity
 
 type Department struct {
-	Id       int `gorm:"primarykey"`
-	ParentId int
-	Name     string
+	Id       string `json:"id" gorm:"primarykey"`
+	ParentId string `json:"parentId"`
+	Name     string `json:"name"`
 }
 
 func (e Department) TableName() string {

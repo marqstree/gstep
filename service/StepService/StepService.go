@@ -25,25 +25,25 @@ func GetStepByTemplateId(templateId int, stepId int, tx *gorm.DB) *entity.Step {
 	return pStep
 }
 
-func FindStep(pRootStep *entity.Step, stepId int) *entity.Step {
-	if nil == pRootStep {
+func FindStep(pParentStep *entity.Step, stepId int) *entity.Step {
+	if nil == pParentStep {
 		return nil
 	}
 
-	if pRootStep.Id == stepId {
-		return pRootStep
+	if pParentStep.Id == stepId {
+		return pParentStep
 	}
 
-	if len(pRootStep.NextSteps) == 0 {
-		return nil
+	if pParentStep.NextStep.Id == stepId {
+		return pParentStep.NextStep
 	}
 
-	for _, v := range pRootStep.NextSteps {
+	for _, v := range pParentStep.BranchSteps {
 		if v.Id == stepId {
-			return &v
+			return v
 		}
 
-		pFindOne := FindStep(&v, stepId)
+		pFindOne := FindStep(v, stepId)
 		if nil != pFindOne {
 			return pFindOne
 		}
@@ -57,16 +57,16 @@ func FindPrevStep(pParentStep *entity.Step, beginStepId int) *entity.Step {
 		return nil
 	}
 
-	if len(pParentStep.NextSteps) == 0 {
-		return nil
+	if pParentStep.NextStep.Id == beginStepId {
+		return pParentStep
 	}
 
-	for _, v := range pParentStep.NextSteps {
+	for _, v := range pParentStep.BranchSteps {
 		if v.Id == beginStepId {
 			return pParentStep
 		}
 
-		pFindOne := FindPrevStep(&v, beginStepId)
+		pFindOne := FindPrevStep(v, beginStepId)
 		if nil != pFindOne {
 			return pFindOne
 		}

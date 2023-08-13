@@ -123,22 +123,25 @@ func CanPass(pTask *entity.Task, pProcess *entity.Process, tx *gorm.DB) bool {
 	}
 }
 
+// 查找流程的下一个步骤
+// 碰到条件步骤,取条件步骤的下一个步骤
 func GetNextStep(currentStepId int, pProcess *entity.Process, pForm *map[string]any, tx *gorm.DB) *entity.Step {
 	pStep := StepService.GetStepByProcess(pProcess, currentStepId)
-	if len(pStep.NextSteps) == 0 {
-		return nil
+
+	for _, v := range pStep.BranchSteps {
+		if v.Category != StepCat.CONDITION.Code {
+			panic(ServerError.New("流程分支的首个步骤不是条件类型步骤"))
+		}
+
+		isPass := ExpressionUtil.ExecuteExpression(v.Expression, pForm)
+		if isPass {
+			nextStep := GetNextStep(v.Id, pProcess, pForm, tx)
+			return nextStep
+		}
 	}
 
-	for _, v := range pStep.NextSteps {
-		if v.Category == StepCat.CONDITION.Code {
-			isPass := ExpressionUtil.ExecuteExpression(v.Expression, pForm)
-			if isPass {
-				nextStep := GetNextStep(v.Id, pProcess, pForm, tx)
-				return nextStep
-			}
-		} else {
-			return &v
-		}
+	if nil != pStep.NextStep {
+		return pStep.NextStep
 	}
 
 	return nil
@@ -171,12 +174,12 @@ func NewTaskByStep(pStep *entity.Step, pProcess *entity.Process, tx *gorm.DB) *e
 		for _, v := range pStep.Candidates {
 			candidate := entity.TaskCandidate{}
 			candidate.TaskId = task.Id
-			candidate.UserId = v
+			candidate.UserId = v.Value
 			dao.SaveOrUpdate(&candidate, tx)
 
 			assignee := entity.TaskAssignee{}
 			assignee.TaskId = task.Id
-			assignee.UserId = v
+			assignee.UserId = v.Value
 			assignee.State = TaskState.STARTED.Code
 			dao.SaveOrUpdate(&assignee, tx)
 		}

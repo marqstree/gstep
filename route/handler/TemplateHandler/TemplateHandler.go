@@ -30,9 +30,12 @@ func Query(writer http.ResponseWriter, request *http.Request) {
 }
 
 func Detail(writer http.ResponseWriter, request *http.Request) {
-	//dto := dto.TemplateQueryDetailDto{}
-	//RequestParsUtil.Body2dto(request, &dto)
-	//detail := TemplateService.QueryDetail(&dto, DbUtil.Db)
-	//AjaxJson.SuccessByData(*detail).Response(writer)
-	AjaxJson.Success().Response(writer)
+	dto := dto.TemplateQueryDetailDto{}
+	RequestParsUtil.Body2dto(request, &dto)
+	pDetail := TemplateService.QueryDetail(&dto, DbUtil.Db)
+	if nil == pDetail {
+		AjaxJson.Fail("查不到模板数据").Response(writer)
+		return
+	}
+	AjaxJson.SuccessByData(*pDetail).Response(writer)
 }

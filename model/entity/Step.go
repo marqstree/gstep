@@ -1,22 +1,15 @@
 package entity
 
 type Step struct {
-	Id          int
-	Title       string
-	Category    string
-	Level       int
-	Form        map[string]any
-	Candidates  []string
-	Expression  string
-	AuditMethod string
-	NextSteps   []Step
-	PrevStepIds []int
-}
-
-func (e Step) TableName() string {
-	return "step"
-}
-
-func (e Step) GetId() any {
-	return e.Id
+	Id          int            `json:"id"`
+	Title       string         `json:"title"`
+	Category    string         `json:"category"`
+	Level       int            `json:"level"`
+	Form        map[string]any `json:"form"`
+	Candidates  []Candidate    `json:"candidates"`
+	Expression  string         `json:"expression"`
+	AuditMethod string         `json:"auditMethod"`
+	BranchSteps []*Step        `json:"branchSteps"`
+	NextStep    *Step          `json:"nextStep"`
+	PrevStepIds []int          `json:"prevStepIds"`
 }

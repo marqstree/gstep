@@ -1,11 +1,12 @@
 package entity
 
 type User struct {
-	Id           string `gorm:"primarykey"`
-	Name         string
-	Position     string
-	isLeader     bool
-	departmentId int
+	Id            string `json:"id" gorm:"primarykey"`
+	Name          string `json:"name"`
+	PositionTitle string `json:"positionTitle"`
+	PositionCode  string `json:"positionCode"`
+	isLeader      bool   `json:"isLeader"`
+	departmentId  int    `json:"departmentId"`
 }
 
 func (e User) TableName() string {
