@@ -14,5 +14,5 @@ require (
 	github.com/robfig/cron v1.2.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	gorm.io/driver/mysql v1.5.1 // indirect
-	gorm.io/gorm v1.25.2 // indirect
+	gorm.io/gorm v1.25.3 // indirect
 )

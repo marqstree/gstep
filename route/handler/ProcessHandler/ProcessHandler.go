@@ -12,12 +12,14 @@ import (
 )
 
 func Start(writer http.ResponseWriter, request *http.Request) {
-	dto := dto.ProcessStartDto{}
-	RequestParsUtil.Body2dto(request, &dto)
+	requestDto := dto.ProcessStartDto{}
+	RequestParsUtil.Body2dto(request, &requestDto)
 
 	tx := DbUtil.GetTx()
-	dao.CheckById[entity.User](dto.StartUserId, tx)
-	id := ProcessService.Start(&dto, tx)
+	dao.CheckById[entity.User](requestDto.StartUserId, tx)
+	//创建流程及启动任务
+	id := ProcessService.Start(&requestDto, tx)
+
 	tx.Commit()
 
 	AjaxJson.SuccessByData(id).Response(writer)

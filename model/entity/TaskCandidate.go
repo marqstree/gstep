@@ -4,8 +4,9 @@ import "github.com/marqstree/gstep/util/db/entity"
 
 type TaskCandidate struct {
 	entity.BaseEntity
-	TaskId int
-	UserId string
+	TaskId   int    `json:"taskId"`
+	Category string `json:"category"`
+	Value    string `json:"value"`
 }
 
 func (e TaskCandidate) TableName() string {

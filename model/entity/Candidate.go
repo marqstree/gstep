@@ -3,5 +3,5 @@ package entity
 type Candidate struct {
 	Category string `json:"category"`
 	Title    string `json:"title"`
-	Value    string `json:"Value"`
+	Value    string `json:"value"`
 }

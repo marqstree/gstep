@@ -1,15 +1,15 @@
-package AuditMethod
+package AuditMethodCat
 
 import (
 	"github.com/marqstree/gstep/util/enum"
 )
 
-type AuditMethod struct {
+type AuditMethodCat struct {
 	enum.BaseEnum[string]
 }
 
-var AND = AuditMethod{}
-var OR = AuditMethod{}
+var AND = AuditMethodCat{}
+var OR = AuditMethodCat{}
 
 func init() {
 	AND.Code = "and"

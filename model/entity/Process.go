@@ -1,15 +1,16 @@
 package entity
 
 import (
+	"github.com/marqstree/gstep/util/LocalTime"
 	"github.com/marqstree/gstep/util/db/entity"
 )
 
 type Process struct {
 	entity.BaseEntity
-	TemplateId  int
-	StartUserId string
-	RootStep    Step `gorm:"serializer:json"`
-	State       string
+	TemplateId  int                  `json:"templateId"`
+	StartUserId string               `json:"startUserId"`
+	State       string               `json:"state"`
+	FinishedAt  *LocalTime.LocalTime `json:"finishedAt"`
 }
 
 func (e Process) TableName() string {

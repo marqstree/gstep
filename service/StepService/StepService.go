@@ -1,6 +1,10 @@
 package StepService
 
 import (
+	"github.com/marqstree/gstep/dao/DepartmentDao"
+	"github.com/marqstree/gstep/dao/ProcessDao"
+	"github.com/marqstree/gstep/dao/UserDao"
+	"github.com/marqstree/gstep/enum/CandidateCat"
 	"github.com/marqstree/gstep/enum/StepCat"
 	"github.com/marqstree/gstep/model/entity"
 	"github.com/marqstree/gstep/util/ServerError"
@@ -8,8 +12,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetStepByProcess(pPrcess *entity.Process, stepId int) *entity.Step {
-	pStep := FindStep(&pPrcess.RootStep, stepId)
+func GetStepByProcess(pPrcess *entity.Process, stepId int, tx *gorm.DB) *entity.Step {
+	processVo := ProcessDao.ToVo(pPrcess, tx)
+	pStep := FindStep(&processVo.Template.RootStep, stepId)
 
 	if nil == pStep {
 		panic(ServerError.New("无效的步骤id"))
@@ -42,7 +47,14 @@ func FindStep(pParentStep *entity.Step, stepId int) *entity.Step {
 		if v.Id == stepId {
 			return v
 		}
+	}
 
+	aStep := FindStep(pParentStep.NextStep, stepId)
+	if nil != aStep {
+		return aStep
+	}
+
+	for _, v := range pParentStep.BranchSteps {
 		pFindOne := FindStep(v, stepId)
 		if nil != pFindOne {
 			return pFindOne
@@ -73,6 +85,21 @@ func FindPrevStep(pParentStep *entity.Step, beginStepId int) *entity.Step {
 	}
 
 	return nil
+}
+
+func FindPrevBranchStepWithNextStep(pRootStep *entity.Step, beginStepId int) *entity.Step {
+	pPrevStep := FindPrevStep(pRootStep, beginStepId)
+
+	if nil == pPrevStep {
+		return nil
+	}
+
+	if pPrevStep.Category == StepCat.BRANCH.Code && nil != pPrevStep.NextStep && pPrevStep.NextStep.Id != 0 {
+		return pPrevStep
+	}
+
+	pPrevPrevStep := FindPrevBranchStepWithNextStep(pRootStep, pPrevStep.Id)
+	return pPrevPrevStep
 }
 
 func FindPrevAuditStep(pRootStep *entity.Step, beginStepId int) *entity.Step {
@@ -126,4 +153,27 @@ func FindPrevEndAuditSteps(pRootStep *entity.Step, beginStepId int, endStepId in
 
 		fromStepId = pPrevStep.Id
 	}
+}
+
+func CheckCandidate(userId string, pRootStep *entity.Step, stepId int, tx *gorm.DB) {
+	pStep := FindStep(pRootStep, stepId)
+	if len(pStep.Candidates) == 0 {
+		return
+	}
+
+	for _, v := range pStep.Candidates {
+		if v.Category == CandidateCat.USER.Code {
+			if userId == v.Value {
+				return
+			}
+		} else if v.Category == CandidateCat.DEPARTMENT.Code {
+			departments := DepartmentDao.GetGrandsonDepartments(v.Value, tx)
+			isIn := UserDao.IsUserInDepartments(userId, departments, tx)
+			if isIn {
+				return
+			}
+		}
+	}
+
+	panic(ServerError.New("流程提交人不在候选人列表中"))
 }
