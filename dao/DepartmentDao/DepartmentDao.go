@@ -13,7 +13,7 @@ func GetChildDepartments(parentId string, tx *gorm.DB) []entity.Department {
 
 	pId := parentId
 	if len(parentId) == 0 {
-		pId = config.Config.Department.RootDepartmentId
+		pId = config.Config.Department.RootParentDepartmentId
 	}
 	err := tx.Raw("select * from department a "+
 		" where a.parent_id=?"+
@@ -55,7 +55,7 @@ func GetChildDepartmentCount(parentId string, tx *gorm.DB) int {
 	cnt := 0
 	pId := parentId
 	if len(parentId) == 0 {
-		pId = config.Config.Department.RootDepartmentId
+		pId = config.Config.Department.RootParentDepartmentId
 	}
 	err := tx.Raw("select count(1) from department a "+
 		" where a.parent_id=?", pId).Scan(&cnt).Error

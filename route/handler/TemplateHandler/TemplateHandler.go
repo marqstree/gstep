@@ -1,6 +1,7 @@
 package TemplateHandler
 
 import (
+	"github.com/marqstree/gstep/dao/TemplateDao"
 	"github.com/marqstree/gstep/model/dto"
 	"github.com/marqstree/gstep/model/entity"
 	"github.com/marqstree/gstep/service/TemplateService"
@@ -16,6 +17,10 @@ func Save(writer http.ResponseWriter, request *http.Request) {
 	RequestParsUtil.Body2dto(request, &template)
 
 	tx := DbUtil.GetTx()
+	if 0 == template.GroupId {
+		template.GroupId = TemplateDao.NewGroupId(tx)
+		template.Version = 1
+	}
 	dao.SaveOrUpdate(&template, tx)
 
 	tx.Commit()

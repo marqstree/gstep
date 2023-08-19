@@ -27,6 +27,13 @@ func middleware(h http.HandlerFunc) http.HandlerFunc {
 	return handler
 }
 
+func noAuthMiddleware(h http.HandlerFunc) http.HandlerFunc {
+	handler := errorHandle(h)
+	handler = jsonResponseHead(handler)
+	handler = crossOrigin(handler)
+	return handler
+}
+
 func jsonResponseHead(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -108,24 +115,24 @@ func Setup() {
 // define route
 func setupRoutes() {
 	//流程模板
-	Mux.HandleFunc("/template/save", middleware(TemplateHandler.Save))
-	Mux.HandleFunc("/template/query", middleware(TemplateHandler.Query))
-	Mux.HandleFunc("/template/detail", middleware(TemplateHandler.Detail))
+	Mux.HandleFunc("/template/save", noAuthMiddleware(TemplateHandler.Save))
+	Mux.HandleFunc("/template/query", noAuthMiddleware(TemplateHandler.Query))
+	Mux.HandleFunc("/template/detail", noAuthMiddleware(TemplateHandler.Detail))
 	//流程实例
-	Mux.HandleFunc("/process/start", middleware(ProcessHandler.Start))
+	Mux.HandleFunc("/process/start", noAuthMiddleware(ProcessHandler.Start))
 	//任务
-	Mux.HandleFunc("/task/pass", middleware(TaskHandler.Pass))
-	Mux.HandleFunc("/task/refuse", middleware(TaskHandler.Refuse))
-	Mux.HandleFunc("/task/cease", middleware(TaskHandler.Cease))
+	Mux.HandleFunc("/task/pass", noAuthMiddleware(TaskHandler.Pass))
+	Mux.HandleFunc("/task/retreat", noAuthMiddleware(TaskHandler.Retreat))
+	Mux.HandleFunc("/task/cease", noAuthMiddleware(TaskHandler.Refuse))
 
 	//查询
-	Mux.HandleFunc("/task/pending", middleware(TaskHandler.Pending))
+	Mux.HandleFunc("/task/pending", noAuthMiddleware(TaskHandler.Pending))
 
 	//+++ 测试接口 ++++++++++++++++++
 	//接收通知
-	Mux.HandleFunc("/notify/task_state_change", middleware(NotifyHandler.TaskStateChange))
+	Mux.HandleFunc("/notify/task_state_change", noAuthMiddleware(NotifyHandler.TaskStateChange))
 
 	//部门查询
-	Mux.HandleFunc("/department/get_child_department", middleware(DepartmentHandler.GetChildDepartments))
-	Mux.HandleFunc("/department/get_users", middleware(DepartmentHandler.GetUsers))
+	Mux.HandleFunc("/department/get_child_department", noAuthMiddleware(DepartmentHandler.GetChildDepartments))
+	Mux.HandleFunc("/department/get_users", noAuthMiddleware(DepartmentHandler.GetUsers))
 }

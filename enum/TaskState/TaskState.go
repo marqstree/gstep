@@ -9,7 +9,7 @@ type TaskState struct {
 var STARTED = TaskState{}
 var PASS = TaskState{}
 var REFUSE = TaskState{}
-var WITHDRAW = TaskState{}
+var RETREAT = TaskState{}
 
 func init() {
 	STARTED.Code = "started"
@@ -21,6 +21,6 @@ func init() {
 	REFUSE.Code = "refuse"
 	REFUSE.Title = "拒绝"
 
-	WITHDRAW.Code = "withdraw"
-	WITHDRAW.Title = "撤销"
+	RETREAT.Code = "retreat"
+	RETREAT.Title = "退回"
 }

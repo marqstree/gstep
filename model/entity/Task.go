@@ -5,7 +5,7 @@ import "github.com/marqstree/gstep/util/db/entity"
 type Task struct {
 	entity.BaseEntity
 	ProcessId   int
-	Form        map[string]any `gorm:"serializer:json"`
+	Form        *map[string]any `json:"form" gorm:"serializer:json"`
 	AuditMethod string
 	StepId      int
 	Title       string

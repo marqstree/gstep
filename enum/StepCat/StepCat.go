@@ -59,3 +59,7 @@ func IsContainAudit(code string) bool {
 
 	return false
 }
+
+func IsRoute(code string) bool {
+	return BRANCH.Code == code || CONDITION.Code == code
+}

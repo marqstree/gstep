@@ -28,20 +28,26 @@ func Start(dto *dto.ProcessStartDto, tx *gorm.DB) int {
 	dao.SaveOrUpdate(&process, tx)
 
 	//创建启动任务
-	pStartTask := TaskService.NewStartTask(&process, dto.StartUserId, tx)
+	pTask := TaskService.NewStartTask(&process, dto.StartUserId, dto.Form, tx)
 
 	//启动下一步
-	pNextStep := TaskService.GetNextStep(pStartTask.StepId, pTemplate, &pStartTask.Form, tx)
-	if nil == pNextStep {
-		panic(ServerError.New("找不到流程启动步骤的下一个步骤"))
-	}
-	//创建新任务
-	if pNextStep.Category != StepCat.END.Code {
-		TaskService.NewTaskByStep(pNextStep, &process, tx)
-	}
-	//结束步骤,结束流程
-	if pNextStep.Category == StepCat.END.Code {
-		TaskService.FinishPassProcess(&process, tx)
+	for {
+		pNextStep := TaskService.GetNextStep(pTask.StepId, pTemplate, pTask.Form, tx)
+		if nil == pNextStep || 0 == pNextStep.Id {
+			panic(ServerError.New("找不到流程启动步骤的下一个步骤"))
+		}
+		//创建新任务
+		if pNextStep.Category != StepCat.END.Code {
+			pTask = TaskService.NewTaskByStep(pNextStep, &process, 1, pTask.Form, tx)
+		}
+
+		//审核任务,退出
+		if pNextStep.Category == StepCat.AUDIT.Code {
+			break
+		} else if pNextStep.Category == StepCat.END.Code { //结束步骤,结束流程
+			TaskService.FinishPassProcess(&process, tx)
+			break
+		}
 	}
 
 	return process.Id

@@ -39,7 +39,7 @@ func FindStep(pParentStep *entity.Step, stepId int) *entity.Step {
 		return pParentStep
 	}
 
-	if pParentStep.NextStep.Id == stepId {
+	if nil != pParentStep.NextStep && pParentStep.NextStep.Id == stepId {
 		return pParentStep.NextStep
 	}
 
@@ -49,9 +49,11 @@ func FindStep(pParentStep *entity.Step, stepId int) *entity.Step {
 		}
 	}
 
-	aStep := FindStep(pParentStep.NextStep, stepId)
-	if nil != aStep {
-		return aStep
+	if nil != pParentStep {
+		aStep := FindStep(pParentStep.NextStep, stepId)
+		if nil != aStep {
+			return aStep
+		}
 	}
 
 	for _, v := range pParentStep.BranchSteps {
@@ -69,7 +71,7 @@ func FindPrevStep(pParentStep *entity.Step, beginStepId int) *entity.Step {
 		return nil
 	}
 
-	if pParentStep.NextStep.Id == beginStepId {
+	if nil != pParentStep.NextStep && pParentStep.NextStep.Id == beginStepId {
 		return pParentStep
 	}
 
@@ -77,7 +79,16 @@ func FindPrevStep(pParentStep *entity.Step, beginStepId int) *entity.Step {
 		if v.Id == beginStepId {
 			return pParentStep
 		}
+	}
 
+	if nil != pParentStep.NextStep {
+		pNextStep := FindPrevStep(pParentStep.NextStep, beginStepId)
+		if nil != pNextStep {
+			return pNextStep
+		}
+	}
+
+	for _, v := range pParentStep.BranchSteps {
 		pFindOne := FindPrevStep(v, beginStepId)
 		if nil != pFindOne {
 			return pFindOne
@@ -102,11 +113,12 @@ func FindPrevBranchStepWithNextStep(pRootStep *entity.Step, beginStepId int) *en
 	return pPrevPrevStep
 }
 
+// 查找前一个审核步骤
 func FindPrevAuditStep(pRootStep *entity.Step, beginStepId int) *entity.Step {
 	fromStepId := beginStepId
 	for {
 		pPrevStep := FindPrevStep(pRootStep, fromStepId)
-		if nil == pPrevStep {
+		if nil == pPrevStep || pPrevStep.Id == 0 {
 			return nil
 		}
 		if StepCat.IsContainAudit(pPrevStep.Category) {
@@ -117,34 +129,36 @@ func FindPrevAuditStep(pRootStep *entity.Step, beginStepId int) *entity.Step {
 	}
 }
 
-func FindPrevAuditSteps(pRootStep *entity.Step, beginStepId int) []*entity.Step {
-	auditpSteps := []*entity.Step{}
+// 查询前面所有审核步骤列表
+func FindPrevAuditSteps(pRootStep *entity.Step, beginStepId int) []entity.Step {
+	auditSteps := []entity.Step{}
 	fromStepId := beginStepId
 	for {
 		pPrevStep := FindPrevAuditStep(pRootStep, fromStepId)
 		if nil == pPrevStep {
-			return []*entity.Step{}
+			return auditSteps
 		}
 		if StepCat.IsContainAudit(pPrevStep.Category) {
-			auditpSteps = append(auditpSteps, pPrevStep)
+			auditSteps = append(auditSteps, *pPrevStep)
 		}
 
 		fromStepId = pPrevStep.Id
 	}
 }
 
-func FindPrevEndAuditSteps(pRootStep *entity.Step, beginStepId int, endStepId int) []*entity.Step {
-	auditpSteps := []*entity.Step{}
+// 查询之前到指定步骤的审核列表
+func FindPrevAuditStepsByEndId(pRootStep *entity.Step, beginStepId int, endStepId int) []entity.Step {
+	auditpSteps := []entity.Step{}
 	fromStepId := beginStepId
 	for {
 		pPrevStep := FindPrevAuditStep(pRootStep, fromStepId)
 
 		if nil == pPrevStep {
-			return []*entity.Step{}
+			return auditpSteps
 		}
 
 		if StepCat.IsContainAudit(pPrevStep.Category) {
-			auditpSteps = append(auditpSteps, pPrevStep)
+			auditpSteps = append(auditpSteps, *pPrevStep)
 		}
 
 		if endStepId == pPrevStep.Id {
@@ -155,8 +169,12 @@ func FindPrevEndAuditSteps(pRootStep *entity.Step, beginStepId int, endStepId in
 	}
 }
 
+// 检查指定步骤的候选人
 func CheckCandidate(userId string, pRootStep *entity.Step, stepId int, tx *gorm.DB) {
 	pStep := FindStep(pRootStep, stepId)
+	if nil == pStep {
+		panic(ServerError.New("找不到流程步骤"))
+	}
 	if len(pStep.Candidates) == 0 {
 		return
 	}
@@ -176,4 +194,13 @@ func CheckCandidate(userId string, pRootStep *entity.Step, stepId int, tx *gorm.
 	}
 
 	panic(ServerError.New("流程提交人不在候选人列表中"))
+}
+
+// 候选人条数
+func CandidateCount(taskId int, tx *gorm.DB) int {
+	pTask := dao.CheckById[entity.Task](taskId, tx)
+	pProcess := dao.CheckById[entity.Process](pTask.ProcessId, tx)
+	pTemplate := dao.CheckById[entity.Template](pProcess.TemplateId, tx)
+	pStep := FindStep(&pTemplate.RootStep, pTask.StepId)
+	return len(pStep.Candidates)
 }

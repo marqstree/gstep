@@ -23,7 +23,7 @@ type Configuration struct {
 		TaskStateChange string
 	}
 	Department struct {
-		RootDepartmentId string
+		RootParentDepartmentId string
 	}
 }
 

@@ -24,7 +24,7 @@ func Template2jsExpression(jsTemplate string, params *map[string]any) string {
 	exp := jsTemplate
 	for k, v := range *params {
 		strV := fmt.Sprintf("%v", v)
-		exp = strings.Replace(exp, k, strV, 1)
+		exp = strings.Replace(exp, k, strV, -1)
 	}
 	return exp
 }
