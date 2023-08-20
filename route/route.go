@@ -114,18 +114,25 @@ func Setup() {
 
 // define route
 func setupRoutes() {
-	//流程模板
+	//1.流程模板
+	//保存
 	Mux.HandleFunc("/template/save", noAuthMiddleware(TemplateHandler.Save))
+	//查询
 	Mux.HandleFunc("/template/query", noAuthMiddleware(TemplateHandler.Query))
+	//详情
 	Mux.HandleFunc("/template/detail", noAuthMiddleware(TemplateHandler.Detail))
-	//流程实例
+
+	//2.流程实例
+	//启动流程
 	Mux.HandleFunc("/process/start", noAuthMiddleware(ProcessHandler.Start))
-	//任务
+	//任务审核
 	Mux.HandleFunc("/task/pass", noAuthMiddleware(TaskHandler.Pass))
+	//任务回退
 	Mux.HandleFunc("/task/retreat", noAuthMiddleware(TaskHandler.Retreat))
+	//任务终止
 	Mux.HandleFunc("/task/cease", noAuthMiddleware(TaskHandler.Refuse))
 
-	//查询
+	//查询我的任务
 	Mux.HandleFunc("/task/pending", noAuthMiddleware(TaskHandler.Pending))
 
 	//+++ 测试接口 ++++++++++++++++++
