@@ -1,5 +1,7 @@
-# gstep-vue-example
+# gstep
+a workflow engine  
 show you how to use gstep
+
 
 <p align="center">
     <img width="200" height="200" src="https://www.bqdnao.com/faceroop-static/gstep_logo.png">
@@ -7,8 +9,7 @@ show you how to use gstep
 
 # 1. go backend project startup
 ## create database
-create mysql8 database name: gstep
-
+create mysql8 database name: gstep  
 run mysql database script: (gstep project path)/mysql/mysql8.sql
 
 ## configure
@@ -128,20 +129,20 @@ npm run dev
 </p>
 
 # 3. handle workflow process api path
-    //1.流程模板
-    //保存
-    /template/save
-    //查询
-    /template/query
-    //详情
-    /template/detail
-    
-    //2.流程实例
-    //启动流程
-    /process/start
-    //任务审核
-    /task/pass
-    //任务回退
-    /task/retreat
-    //任务终止
-    /task/cease
+1.workflow template  
++ save  
+/template/save  
++ query  
+/template/query  
++ 详情  
+/template/detail  
+
+2.流程实例  
++ 启动流程  
+/process/start  
++ 任务审核  
+/task/pass  
++ 任务回退  
+/task/retreat  
++ 任务终止  
+/task/cease  
