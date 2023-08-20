@@ -134,15 +134,15 @@ npm run dev
 /template/save  
 + query  
 /template/query  
-+ 详情  
++ detail  
 /template/detail  
 
-2.流程实例  
-+ 启动流程  
+2.workflow process  
++ start  
 /process/start  
-+ 任务审核  
++ audit pass  
 /task/pass  
-+ 任务回退  
++ audit go back  
 /task/retreat  
-+ 任务终止  
++ process cease  
 /task/cease  
