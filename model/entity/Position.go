@@ -1,7 +1,8 @@
 package entity
 
 type Position struct {
-	Position string `gorm:"primarykey"`
+	Title string `json:"title" gorm:"primarykey"`
+	Code  string `json:"code"`
 }
 
 func (e Position) TableName() string {
@@ -9,5 +10,5 @@ func (e Position) TableName() string {
 }
 
 func (e Position) GetId() any {
-	return e.Position
+	return e.Code
 }

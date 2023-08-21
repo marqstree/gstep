@@ -134,7 +134,7 @@ CREATE TABLE `task_assignee`  (
 DROP TABLE IF EXISTS `template`;
 CREATE TABLE `template`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `group_id` int(11) NULL DEFAULT NULL,
+  `template_id` int(11) NULL DEFAULT NULL,
   `title` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `version` int(5) NULL DEFAULT NULL,
   `root_step` varchar(10000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,

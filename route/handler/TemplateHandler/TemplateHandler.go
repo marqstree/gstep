@@ -17,8 +17,22 @@ func Save(writer http.ResponseWriter, request *http.Request) {
 	RequestParsUtil.Body2dto(request, &template)
 
 	tx := DbUtil.GetTx()
-	if 0 == template.GroupId {
-		template.GroupId = TemplateDao.NewGroupId(tx)
+	//已存在版本
+	if template.Id > 0 {
+		oldTemplate := dao.CheckById[entity.Template](template.Id, tx)
+		oldTemplate.RootStep = template.RootStep
+		oldTemplate.Title = template.Title
+		oldTemplate.Version = template.Version
+	} else if template.TemplateId > 0 { //已存在模板,新版本
+		latestTemplate := TemplateDao.GetLatestVersionByTemplateId(template.TemplateId, tx)
+		if nil == latestTemplate {
+			AjaxJson.Fail("无效的流程模板id").Response(writer)
+			return
+		}
+		newVersion := TemplateDao.NewVersion(template.TemplateId, tx)
+		template.Version = newVersion
+	} else { //新模板
+		template.TemplateId = TemplateDao.NewTemplateId(tx)
 		template.Version = 1
 	}
 	dao.SaveOrUpdate(&template, tx)
@@ -43,4 +57,28 @@ func Detail(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	AjaxJson.SuccessByData(*pDetail).Response(writer)
+}
+
+func Info(writer http.ResponseWriter, request *http.Request) {
+	dto := dto.TemplateQueryInfoDto{}
+	RequestParsUtil.Body2dto(request, &dto)
+	pDetail := TemplateService.QueryInfo(&dto, DbUtil.Db)
+	if nil == pDetail {
+		AjaxJson.Fail("查不到模板数据").Response(writer)
+		return
+	}
+	AjaxJson.SuccessByData(*pDetail).Response(writer)
+}
+
+func SaveInfo(writer http.ResponseWriter, request *http.Request) {
+	template := entity.Template{}
+	RequestParsUtil.Body2dto(request, &template)
+
+	tx := DbUtil.GetTx()
+	oldTemplate := dao.CheckById[entity.Template](template.Id, tx)
+	oldTemplate.Title = template.Title
+	dao.SaveOrUpdate(&template, tx)
+
+	tx.Commit()
+	AjaxJson.SuccessByData(template.Id).Response(writer)
 }

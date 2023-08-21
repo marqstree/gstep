@@ -87,10 +87,19 @@ const template = ref({})
 
 onMounted(() => {
   // init workflow data
+  // 1)new template
   template.value = {
-    id: 0,          //new workflow set 0
-    groupId: null   //new workflow set null
   }
+
+  // 2)exist template version
+  // template.value = {
+  //   id: 1,
+  // }
+  
+  // 3)exist template new version
+  // template.value = {
+  //   templateId: 1
+  // }
 })
 
 // toolbar cancel callback
@@ -101,6 +110,8 @@ const onCancel=()=>{
 // toolbar save callback
 const onSave=()=>{
   console.log('save')
+  console.log('+++ saved template ++++++')
+  console.log(template.value)
 }
 
 </script>
@@ -124,25 +135,113 @@ npm run dev
 ```
 
 ## view your page
-<p align="center">
-    <img width="200" height="200" src="https://www.bqdnao.com/faceroop-static/gstep_vue.jpeg">
-</p>
+<img width="400"  src="https://www.bqdnao.com/faceroop-static/gstep_vue.jpg">
 
 # 3. handle workflow process api path
 1.workflow template  
-+ save  
-/template/save  
-+ query  
-/template/query  
-+ detail  
-/template/detail  
++ save template basic info  
+path:/template/save_info  
+method:post  
+Content-Type:application/json  
+json body:  
+```
+  {
+      "id": 64,
+      "title": "请假"
+  }
+```
+
+
++ get template basic info  
+/template/info  
+  path:/template/info  
+  method:post  
+  Content-Type:application/json  
+  json body:
+```
+{
+    "templateId": 1,
+    "versionId": 65
+}
+```
+
++ get template detail  
+  /template/info  
+  path:/template/detail  
+  method:post  
+  Content-Type:application/json  
+  json body:
+```
+{
+    "versionId": 81
+}
+```
+
++ query template by page
+  /template/query  
+  path:/template/query  
+  method:post  
+  Content-Type:application/json  
+  json body:
+```
+{
+    "limit":10,
+    "page":1
+}
+```
 
 2.workflow process  
-+ start  
-/process/start  
-+ audit pass  
-/task/pass  
-+ audit go back  
-/task/retreat  
++ start new process 
+    path:/process/start  
+    method:post  
+    Content-Type:application/json  
+    json body:
+```
+{
+    "templateId": 2,
+    "startUserId": "103",
+    "form": {
+        "day": 5
+    }
+}
+```
+
++ approve a process task   
+  path:/task/pass  
+  method:post  
+  Content-Type:application/json  
+  json body:
+```
+{
+    "taskId": 75,
+    "form": {
+        "day": 11
+    },
+    "userId": "001"
+}
+```
+
+
++ retreat process task  
+  path:/task/retreat  
+  method:post  
+  Content-Type:application/json  
+  json body:
+```
+{
+    "taskId": 74,
+    "userId": "301"
+}
+```
+
 + process cease  
-/task/cease  
+  path:/task/cease  
+  method:post  
+  Content-Type:application/json  
+  json body:
+```
+{
+    "taskId": 74,
+    "userId": "301"
+}
+```

@@ -5,6 +5,7 @@ import (
 	"github.com/marqstree/gstep/config"
 	"github.com/marqstree/gstep/route/handler/DepartmentHandler"
 	"github.com/marqstree/gstep/route/handler/NotifyHandler"
+	"github.com/marqstree/gstep/route/handler/PositionHandler"
 	"github.com/marqstree/gstep/route/handler/ProcessHandler"
 	"github.com/marqstree/gstep/route/handler/TaskHandler"
 	"github.com/marqstree/gstep/route/handler/TemplateHandler"
@@ -121,6 +122,10 @@ func setupRoutes() {
 	Mux.HandleFunc("/template/query", noAuthMiddleware(TemplateHandler.Query))
 	//详情
 	Mux.HandleFunc("/template/detail", noAuthMiddleware(TemplateHandler.Detail))
+	//基本信息
+	Mux.HandleFunc("/template/info", noAuthMiddleware(TemplateHandler.Info))
+	//保存基本信息
+	Mux.HandleFunc("/template/save_info", noAuthMiddleware(TemplateHandler.SaveInfo))
 
 	//2.流程实例
 	//启动流程
@@ -142,4 +147,7 @@ func setupRoutes() {
 	//部门查询
 	Mux.HandleFunc("/department/get_child_department", noAuthMiddleware(DepartmentHandler.GetChildDepartments))
 	Mux.HandleFunc("/department/get_users", noAuthMiddleware(DepartmentHandler.GetUsers))
+
+	//职位查询
+	Mux.HandleFunc("/position/positions", noAuthMiddleware(PositionHandler.GetPositions))
 }

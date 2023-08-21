@@ -11,10 +11,10 @@ import (
 
 func Query(dto *dto.TemplateQueryDto, tx *gorm.DB) []entity.Template {
 	list := []entity.Template{}
-	sql := "select * from template " +
+	sql := "select id,template_id,title,version,created_at,updated_at,deleted_at from template " +
 		" where 1=1 "
-	if dto.TemplateId > 0 {
-		sql = sql + " and id=" + strconv.Itoa(dto.TemplateId)
+	if dto.VersionId > 0 {
+		sql = sql + " and id=" + strconv.Itoa(dto.VersionId)
 	}
 	sql = sql + " limit " + strconv.Itoa(dto.Limit)
 	sql = sql + " offset " + strconv.Itoa((dto.Page-1)*dto.Limit)
@@ -29,13 +29,24 @@ func Query(dto *dto.TemplateQueryDto, tx *gorm.DB) []entity.Template {
 
 func QueryDetail(dto *dto.TemplateQueryDetailDto, tx *gorm.DB) *entity.Template {
 	pTemplate := &entity.Template{}
-	if dto.TemplateId > 0 {
-		pTemplate = dao.CheckById[entity.Template](dto.TemplateId, tx)
+	if dto.VersionId > 0 {
+		pTemplate = dao.CheckById[entity.Template](dto.VersionId, tx)
+	} else if dto.TemplateId > 0 {
+		pTemplate = TemplateDao.GetLatestVersionByTemplateId(dto.TemplateId, tx)
 	}
 
-	if dto.GroupId > 0 {
-		pTemplate = TemplateDao.GetLatestVersionByGroupId(dto.GroupId, tx)
+	return pTemplate
+}
+
+func QueryInfo(dto *dto.TemplateQueryInfoDto, tx *gorm.DB) *entity.Template {
+	pTemplate := &entity.Template{}
+	if dto.VersionId > 0 {
+		pTemplate = dao.CheckById[entity.Template](dto.VersionId, tx)
+	} else if dto.TemplateId > 0 {
+		pTemplate = TemplateDao.GetLatestVersionByTemplateId(dto.TemplateId, tx)
 	}
+
+	pTemplate.RootStep = entity.Step{}
 
 	return pTemplate
 }

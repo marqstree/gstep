@@ -18,7 +18,7 @@ func Start(dto *dto.ProcessStartDto, tx *gorm.DB) int {
 	copier.Copy(process, dto)
 
 	//创建流程
-	pTemplate := TemplateDao.GetLatestVersionByGroupId(dto.TemplateGroupId, tx)
+	pTemplate := TemplateDao.GetLatestVersionByTemplateId(dto.TemplateId, tx)
 	if nil == pTemplate {
 		panic(ServerError.New("无效的模板"))
 	}
