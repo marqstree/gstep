@@ -17,9 +17,6 @@ config file: (gstep project path)/config.json
 ```
 {
   "port": "9900",
-  "auth": {
-    "secret": "abcd"
-  },
   "db":{
     "database": "gstep",
     "host": "localhost",
